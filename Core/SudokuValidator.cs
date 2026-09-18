@@ -1,3 +1,4 @@
+using System;
 using SudokuEngine.Models;
 
 namespace SudokuEngine.Core
@@ -5,9 +6,9 @@ namespace SudokuEngine.Core
     /// <summary>
     /// Enforces standard Sudoku rules: row uniqueness, column uniqueness, and 3x3 sub-grid uniqueness.
     /// </summary>
-    public class SudokuValidator
+    public static class SudokuValidator
     {
-        public bool IsValidPlacement(SudokuGrid grid, int row, int col, int value)
+        public static bool IsValidPlacement(SudokuGrid grid, int row, int col, int value)
         {
             if (value < 1 || value > 9)
             {
