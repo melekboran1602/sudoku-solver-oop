@@ -9,20 +9,20 @@ namespace SudokuEngine.Core
     public static class BacktrackingSolver
     {
         /// <summary>
-        /// Attempts to solve the provided Sudoku grid using recursive backtracking.
+        /// Solves the Sudoku grid using recursive depth-first search (DFS) with backtracking.
         /// </summary>
-        /// <param name="grid">The Sudoku grid to solve.</param>
-        /// <returns>True if a solution is found; otherwise, false.</returns>
+        /// <param name="grid">The Sudoku grid state to be solved.</param>
+        /// <returns>True if a complete valid solution is found; otherwise, false.</returns>
         public static bool Solve(SudokuGrid grid)
         {
             int row = -1;
             int col = -1;
             bool isEmpty = false;
 
-            // Find an unassigned cell (represented by 0)
-            for (int r = 0; r < 9; r++)
+            // Locate the next unassigned cell (represented by 0)
+            for (int r = 0; r < SudokuGrid.GridSize; r++)
             {
-                for (int c = 0; c < 9; c++)
+                for (int c = 0; c < SudokuGrid.GridSize; c++)
                 {
                     if (grid.GetValue(r, c) == 0)
                     {
@@ -38,29 +38,31 @@ namespace SudokuEngine.Core
                 }
             }
 
-            // No empty cells left, puzzle is solved
+            // Base case: All cells are filled, solution found
             if (!isEmpty)
             {
                 return true;
             }
 
-            // Try digits 1 to 9
+            // Attempt candidates 1 through 9
             for (int num = 1; num <= 9; num++)
             {
                 if (SudokuValidator.IsValidPlacement(grid, row, col, num))
                 {
                     grid.SetValue(row, col, num);
 
+                    // Recurse to solve remaining cells
                     if (Solve(grid))
                     {
                         return true;
                     }
 
-                    // Undo assignment (backtrack)
+                    // Undo placement (backtrack)
                     grid.SetValue(row, col, 0);
                 }
             }
 
+            // Trigger backtracking to previous recursion layer
             return false;
         }
     }
