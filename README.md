@@ -90,7 +90,7 @@ Through this project, I practiced:
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/melekboran1602/sudoku-solver-oop.git](https://github.com/melekboran1602/sudoku-solver-oop.git)
+   git clone https://github.com/melekboran1602/sudoku-solver-oop.git
    cd sudoku-solver-oop
 2. Build and run the project:
    dotnet run
