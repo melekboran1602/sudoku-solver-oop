@@ -9,6 +9,7 @@ namespace SudokuEngine.UI
     public class MainForm : Form
     {
         private TextBox[,] cells = new TextBox[9, 9];
+        private Panel boardPanel;
         private Button btnSolve;
         private Button btnClear;
         private ComboBox cmbLanguage;
@@ -16,12 +17,14 @@ namespace SudokuEngine.UI
 
         public MainForm()
         {
-            this.Size = new Size(460, 580);
+            // Form ayarları
+            this.Size = new Size(490, 640);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
+            this.BackColor = Color.FromArgb(245, 247, 250); // Göz yormayan yumuşak açık gri zemin
 
-            // Varsayılan dil olarak Türkçe ile başla
+            // Varsayılan dil
             Localization.CurrentLanguage = Language.Turkish;
 
             InitializeLanguageSelector();
@@ -33,20 +36,23 @@ namespace SudokuEngine.UI
 
         private void InitializeLanguageSelector()
         {
+            // Genişliği 110 yaparak "Language:" yazısının kesilmesini önledik
             lblLanguage = new Label
             {
-                Location = new Point(25, 18),
-                Size = new Size(80, 25),
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                Location = new Point(30, 20),
+                Size = new Size(110, 28),
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(50, 60, 70),
                 TextAlign = ContentAlignment.MiddleLeft
             };
 
             cmbLanguage = new ComboBox
             {
-                Location = new Point(110, 16),
-                Size = new Size(130, 25),
+                Location = new Point(145, 20),
+                Size = new Size(130, 28),
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("Segoe UI", 9.5f)
+                Font = new Font("Segoe UI", 9.5f),
+                BackColor = Color.White
             };
 
             cmbLanguage.Items.Add("Türkçe");
@@ -71,27 +77,44 @@ namespace SudokuEngine.UI
 
         private void InitializeGrid()
         {
-            int startX = 25;
-            int startY = 60;
             int cellSize = 42;
+            int thinGap = 1;   // Normal hücreler arası ince çizgi
+            int thickGap = 4;  // 3x3 bloklar arası kalın çizgi
+            int padding = 4;   // Tahtanın dış çerçeve kalınlığı
+
+            // Tahtanın toplam genişlik ve yüksekliğini hesapla
+            int boardSize = (padding * 2) + (cellSize * 9) + (thinGap * 6) + (thickGap * 2);
+
+            // Arka plandaki ana Sudoku tahta kutusu (Çizgiler bu rengin aradan görünmesiyle oluşur)
+            boardPanel = new Panel
+            {
+                Location = new Point(30, 65),
+                Size = new Size(boardSize, boardSize),
+                BackColor = Color.FromArgb(33, 37, 41) // Koyu grafit/siyah çerçeve çizgileri
+            };
 
             for (int r = 0; r < 9; r++)
             {
                 for (int c = 0; c < 9; c++)
                 {
-                    int extraX = (c / 3) * 6;
-                    int extraY = (r / 3) * 6;
+                    // 3x3 bloklara göre piksel konumunu hesapla
+                    int posX = padding + (c * cellSize) + ((c - (c / 3)) * thinGap) + ((c / 3) * thickGap);
+                    int posY = padding + (r * cellSize) + ((r - (r / 3)) * thinGap) + ((r / 3) * thickGap);
 
                     var tb = new TextBox
                     {
                         Width = cellSize,
                         Height = cellSize,
-                        Location = new Point(startX + c * cellSize + extraX, startY + r * cellSize + extraY),
+                        Location = new Point(posX, posY),
                         Font = new Font("Segoe UI", 16, FontStyle.Bold),
                         TextAlign = HorizontalAlignment.Center,
-                        MaxLength = 1
+                        MaxLength = 1,
+                        BorderStyle = BorderStyle.None, // Keskin çerçeveyi kaldırıp yumuşattık
+                        BackColor = Color.FromArgb(254, 254, 254), // Gözü dinlendiren kırık beyaz
+                        ForeColor = Color.FromArgb(30, 30, 30)
                     };
 
+                    // Sadece 1-9 arası sayılara izin ver
                     tb.KeyPress += (s, e) =>
                     {
                         if (!char.IsControl(e.KeyChar) && (e.KeyChar < '1' || e.KeyChar > '9'))
@@ -101,33 +124,39 @@ namespace SudokuEngine.UI
                     };
 
                     cells[r, c] = tb;
-                    this.Controls.Add(tb);
+                    boardPanel.Controls.Add(tb);
                 }
             }
+
+            this.Controls.Add(boardPanel);
         }
 
         private void InitializeButtons()
         {
             btnSolve = new Button
             {
-                Location = new Point(25, 475),
-                Size = new Size(185, 45),
+                Location = new Point(30, 520),
+                Size = new Size(195, 48),
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                BackColor = Color.FromArgb(40, 167, 69),
+                BackColor = Color.FromArgb(39, 174, 96), // Şık zümrüt yeşili
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
             };
+            btnSolve.FlatAppearance.BorderSize = 0;
             btnSolve.Click += BtnSolve_Click;
 
             btnClear = new Button
             {
-                Location = new Point(230, 475),
-                Size = new Size(185, 45),
+                Location = new Point(245, 520),
+                Size = new Size(195, 48),
                 Font = new Font("Segoe UI", 11, FontStyle.Regular),
-                BackColor = Color.FromArgb(220, 53, 69),
+                BackColor = Color.FromArgb(231, 76, 60), // Şık soft kırmızı
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
             };
+            btnClear.FlatAppearance.BorderSize = 0;
             btnClear.Click += (s, e) =>
             {
                 for (int r = 0; r < 9; r++)
@@ -135,7 +164,7 @@ namespace SudokuEngine.UI
                     for (int c = 0; c < 9; c++)
                     {
                         cells[r, c].Text = "";
-                        cells[r, c].ForeColor = Color.Black;
+                        cells[r, c].ForeColor = Color.FromArgb(30, 30, 30);
                     }
                 }
             };
@@ -163,12 +192,12 @@ namespace SudokuEngine.UI
                     if (int.TryParse(cells[r, c].Text, out int val) && val >= 1 && val <= 9)
                     {
                         grid.SetValue(r, c, val);
-                        cells[r, c].ForeColor = Color.Black;
+                        cells[r, c].ForeColor = Color.FromArgb(30, 30, 30); // Kullanıcının girdiği sayılar koyu gri/siyah
                     }
                     else
                     {
                         grid.SetValue(r, c, 0);
-                        cells[r, c].ForeColor = Color.DodgerBlue;
+                        cells[r, c].ForeColor = Color.FromArgb(41, 128, 185); // Algoritmanın bulduğu sayılar güzel bir mavi
                     }
                 }
             }
