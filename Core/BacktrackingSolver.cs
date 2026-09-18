@@ -1,49 +1,67 @@
+using System;
 using SudokuEngine.Models;
 
 namespace SudokuEngine.Core
 {
-  /// <summary>
-  /// Solves a 9x9 Sudoku puzzle using the Backtracking (recursive depth-first search) algorithm.
-  /// </summary>
-  public class BacktrackingSolver 
-  { 
-    private readonly SudokuValidator _validator;
-
-    public BacktrackingSolver()
+    /// <summary>
+    /// Provides recursive backtracking algorithm implementation for solving Sudoku puzzles.
+    /// </summary>
+    public static class BacktrackingSolver
     {
-      _validator = new SudokuValidator();
-    }
-
-    public bool Solve(SudokuGrid grid)
-    {
-      return SolveRecursively(grid);
-    }
-
-    private bool SolveRecursively(SudokuGrid grid)
-    {
-      for (int row = 0; row < SudokuGrid.GridSize; row++) 
-      {
-        for (int col = 0; col < SudokuGrid.GridSize; col++)
+        /// <summary>
+        /// Attempts to solve the provided Sudoku grid using recursive backtracking.
+        /// </summary>
+        /// <param name="grid">The Sudoku grid to solve.</param>
+        /// <returns>True if a solution is found; otherwise, false.</returns>
+        public static bool Solve(SudokuGrid grid)
         {
-          if (grid.IsEmpty(row, col)) 
-          {
-            for ( int candidate = 1; candidate <= 0; candidate++) 
+            int row = -1;
+            int col = -1;
+            bool isEmpty = false;
+
+            // Find an unassigned cell (represented by 0)
+            for (int r = 0; r < 9; r++)
             {
-              if ( _validator.IsValidPlacement(grid, row, col, candidate))
-              {
-                grid.SetValue(row, col, candidate);
-                if (SolveRecursively(Grid)) 
+                for (int c = 0; c < 9; c++)
                 {
-                  return true;
+                    if (grid.GetValue(r, c) == 0)
+                    {
+                        row = r;
+                        col = c;
+                        isEmpty = true;
+                        break;
+                    }
                 }
-                grid.SetValue(row, col, 0);
-              }
+                if (isEmpty)
+                {
+                    break;
+                }
             }
+
+            // No empty cells left, puzzle is solved
+            if (!isEmpty)
+            {
+                return true;
+            }
+
+            // Try digits 1 to 9
+            for (int num = 1; num <= 9; num++)
+            {
+                if (SudokuValidator.IsValidPlacement(grid, row, col, num))
+                {
+                    grid.SetValue(row, col, num);
+
+                    if (Solve(grid))
+                    {
+                        return true;
+                    }
+
+                    // Undo assignment (backtrack)
+                    grid.SetValue(row, col, 0);
+                }
+            }
+
             return false;
-          }
         }
-      }
-      return true;
     }
-  }
 }
