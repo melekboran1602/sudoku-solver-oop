@@ -14,15 +14,15 @@ namespace SudokuEngine.UI
         private ComboBox cmbLanguage;
         private Label lblLanguage;
 
-        // Varsayılan dil: Türkçe ("tr")
-        private string currentLang = "tr";
-
         public MainForm()
         {
             this.Size = new Size(460, 580);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
+
+            // Varsayılan dil olarak Türkçe ile başla
+            Localization.CurrentLanguage = Language.Turkish;
 
             InitializeLanguageSelector();
             InitializeGrid();
@@ -56,11 +56,11 @@ namespace SudokuEngine.UI
 
             cmbLanguage.SelectedIndexChanged += (s, e) =>
             {
-                currentLang = cmbLanguage.SelectedIndex switch
+                Localization.CurrentLanguage = cmbLanguage.SelectedIndex switch
                 {
-                    1 => "en",
-                    2 => "de",
-                    _ => "tr"
+                    1 => Language.English,
+                    2 => Language.German,
+                    _ => Language.Turkish
                 };
                 ApplyLocalization();
             };
@@ -131,11 +131,13 @@ namespace SudokuEngine.UI
             btnClear.Click += (s, e) =>
             {
                 for (int r = 0; r < 9; r++)
+                {
                     for (int c = 0; c < 9; c++)
                     {
                         cells[r, c].Text = "";
                         cells[r, c].ForeColor = Color.Black;
                     }
+                }
             };
 
             this.Controls.Add(btnSolve);
@@ -144,10 +146,10 @@ namespace SudokuEngine.UI
 
         private void ApplyLocalization()
         {
-            this.Text = Localization.Get("AppTitle", currentLang);
-            lblLanguage.Text = Localization.Get("LanguageLabel", currentLang);
-            btnSolve.Text = Localization.Get("SolveButton", currentLang);
-            btnClear.Text = Localization.Get("ClearButton", currentLang);
+            this.Text = Localization.Get("AppTitle");
+            lblLanguage.Text = Localization.Get("LanguageLabel");
+            btnSolve.Text = Localization.Get("SolveButton");
+            btnClear.Text = Localization.Get("ClearButton");
         }
 
         private void BtnSolve_Click(object? sender, EventArgs e)
@@ -185,8 +187,8 @@ namespace SudokuEngine.UI
             }
             else
             {
-                string msg = Localization.Get("NoSolution", currentLang);
-                string title = Localization.Get("ResultTitle", currentLang);
+                string msg = Localization.Get("NoSolution");
+                string title = Localization.Get("ResultTitle");
                 MessageBox.Show(msg, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
