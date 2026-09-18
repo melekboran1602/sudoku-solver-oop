@@ -29,7 +29,10 @@ namespace SudokuEngine.UI
           ["Solving"] = "Solving board using Backtracking algorithm...",
           ["SolvedSuccess"] = "Sudoku solved successfully!",
           ["NoSolution"] = "No valid solution exists for this puzzle.",
-          ["ExecutionTime"] = "Elapsed Time: "
+          ["ExecutionTime"] = "Elapsed Time: ",
+          ["InputInstructions"] = "Please enter each row with 9 digits (use 0 or . for empty cells):",
+          ["RowPrompt"] = "Row ",
+          ["InvalidRowError"] = "Error: Invalid input! Each row must be exactly 9 digits (0-9 or .)."
         },
       [Language.Turkish] = new Dictionary<string, string>
       {
@@ -38,7 +41,10 @@ namespace SudokuEngine.UI
         ["Solving"] = "Backtracking algoritması ile çözülüyor...",
         ["SolvedSuccess"] = "Sudoku başarıyla çözüldü!",
         ["NoSolution"] = "Bu sudoku için geçerli bir çözüm bulunamadı.",
-        ["ExecutionTime"] = "Geçen süre: "
+        ["ExecutionTime"] = "Geçen süre: ",
+        ["InputInstructions"] = "Lütfen her satırı 9 karakter olacak şekilde girin (boşluklar için 0 veya . kullanın):",
+        ["RowPrompt"] = "Satır ",
+        ["InvalidRowError"] = "Hata: Geçersiz giriş! Satır tam 9 karakter olmalı (0-9 veya .)."
       },
       [Language.German] = new Dictionary<string, string>
       {
@@ -47,7 +53,10 @@ namespace SudokuEngine.UI
         ["Solving"] = "Das Sudoku wird mit Backtracking-Algorithmus gelöst...",
         ["SolvedSuccess"] = "Sudoku erfolgreich gelöst!",
         ["NoSolution"] = "Keine gültige Lösung für dieses Rätsel gefunden.",
-        ["ExecutionTime"] = "Benötigte Zeit: "
+        ["ExecutionTime"] = "Benötigte Zeit: ",
+        ["InputInstructions"] = "Bitte jede Zeile mit 9 Zeichen eingeben (0 oder . für leere Felder):",
+        ["RowPrompt"] = "Zeile ",
+        ["InvalidRowError"] = "Fehler: Ungültige Eingabe! Jede Zeile muss genau 9 Zeichen lang sein (0-9 oder .)."
       }
     };
     /// <summary>
