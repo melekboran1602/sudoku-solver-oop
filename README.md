@@ -1,4 +1,4 @@
-# 🧩 SudokuEngine
+# 🧩 Sudoku-Solver-OOP
 
 A clean, modular, and localized Sudoku solver engine developed in C# (.NET) featuring interactive coordinate input, constraint-pruning backtracking algorithm, and runtime multi-language support.
 
@@ -75,8 +75,10 @@ Ensure you have the .NET SDK installed on your system.
 ### Run Locally
 
 1. Clone the repository:
-   git clone https://github.com/melekboran1602/SudokuEngine.git
-   cd SudokuEngine
+   ```bash
+   git clone [https://github.com/melekboran1602/Sudoku-Solver-OOP.git](https://github.com/melekboran1602/Sudoku-Solver-OOP.git)
+   cd Sudoku-Solver-OOP
+   ```
 
 2. Build and run the project:
    dotnet run
