@@ -4,10 +4,13 @@ using SudokuEngine.Models;
 namespace SudokuEngine.Core
 {
     /// <summary>
-    /// Enforces standard Sudoku rules: row uniqueness, column uniqueness, and 3x3 sub-grid uniqueness.
+    /// Enforces standard Sudoku placement rules across rows, columns, and 3x3 boxes.
     /// </summary>
     public static class SudokuValidator
     {
+        /// <summary>
+        /// Verifies whether placing a value at the specified coordinates violates any Sudoku rule.
+        /// </summary>
         public static bool IsValidPlacement(SudokuGrid grid, int row, int col, int value)
         {
             if (value < 1 || value > 9)
@@ -20,6 +23,9 @@ namespace SudokuEngine.Core
                    !IsInSubGrid(grid, row, col, value);
         }
 
+        /// <summary>
+        /// Checks if the target value already exists in the given row.
+        /// </summary>
         private static bool IsInRow(SudokuGrid grid, int row, int value)
         {
             for (int col = 0; col < SudokuGrid.GridSize; col++)
@@ -32,6 +38,9 @@ namespace SudokuEngine.Core
             return false;
         }
 
+        /// <summary>
+        /// Checks if the target value already exists in the given column.
+        /// </summary>
         private static bool IsInColumn(SudokuGrid grid, int col, int value)
         {
             for (int row = 0; row < SudokuGrid.GridSize; row++)
@@ -44,6 +53,9 @@ namespace SudokuEngine.Core
             return false;
         }
 
+        /// <summary>
+        /// Checks if the target value exists within the corresponding 3x3 sub-grid.
+        /// </summary>
         private static bool IsInSubGrid(SudokuGrid grid, int row, int col, int value)
         {
             int startRow = (row / SudokuGrid.BoxSize) * SudokuGrid.BoxSize;
