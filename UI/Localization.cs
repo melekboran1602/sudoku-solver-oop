@@ -39,6 +39,7 @@ namespace SudokuEngine.UI
           ["ClearButton"] = "Clear",
           ["ResultTitle"] = "Result",
           ["InvalidBoard"] = "Invalid board! The same number cannot appear twice in any row, column, or 3x3 box.",
+          ["InputInfo"] = "Please enter the numbers on the board:",
         },
        [Language.Turkish] = new Dictionary<string, string>
         {
@@ -57,6 +58,7 @@ namespace SudokuEngine.UI
           ["ClearButton"] = "Temizle",
           ["ResultTitle"] = "Sonuç",
           ["InvalidBoard"] = "Hatalı tahta! Aynı satır, sütun veya 3x3 kutuda aynı sayı birden fazla olamaz.",
+          ["InputInfo"] = "Lütfen tahtadaki sayıları giriniz:",
         },
         [Language.German] = new Dictionary<string, string>
           {
@@ -75,6 +77,7 @@ namespace SudokuEngine.UI
           ["ClearButton"] = "Zurücksetzen",
           ["ResultTitle"] = "Ergebnis",
           ["InvalidBoard"] = "Ungültiges Brett! Die gleiche Zahl darf nicht mehrfach in einer Zeile, Spalte oder 3x3-Box vorkommen.",
+          ["InputInfo"] = "Bitte Zahlen auf dem Brett eingeben:",
         }
       };
       /// <summary>
