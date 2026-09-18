@@ -1,10 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Configure as a Windows GUI application (suppresses the background console window) -->
     <OutputType>WinExe</OutputType>
+
+    <!-- Target .NET 8 on Windows platform to access native desktop APIs -->
     <TargetFramework>net8.0-windows</TargetFramework>
+
+    <!-- Enable C# nullable reference types for compile-time null safety checks -->
     <Nullable>enable</Nullable>
+
+    <!-- Enable Windows Forms support and GUI component libraries -->
     <UseWindowsForms>true</UseWindowsForms>
+
+    <!-- Enable implicit global using directives for common namespaces -->
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
