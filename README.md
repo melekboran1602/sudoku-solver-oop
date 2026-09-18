@@ -76,8 +76,8 @@ Ensure you have the .NET SDK installed on your system.
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/melekboran1602/Sudoku-Solver-OOP.git](https://github.com/melekboran1602/Sudoku-Solver-OOP.git)
-   cd Sudoku-Solver-OOP
+   git clone [https://github.com/melekboran1602/sudoku-solver-oop.git](https://github.com/melekboran1602/sudoku-solver-oop.git)
+   cd sudoku-solver-oop
    ```
 
 2. Build and run the project:
