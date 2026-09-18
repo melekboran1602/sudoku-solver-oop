@@ -52,9 +52,9 @@ namespace SudokuEngine.UI
             // Sol Taraf: "Lütfen sayıları giriniz" mesajı
             lblInfo = new Label
             {
-                Location = new Point(35, 18),
-                Size = new Size(265, 34),
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                Location = new Point(35, 12),
+                Size = new Size(260, 42), // Yüksekliği 42 yaparak 2 satıra da yer açtık
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
                 ForeColor = Color.FromArgb(71, 85, 105),
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -67,7 +67,7 @@ namespace SudokuEngine.UI
 
             btnLangMenu = new Button
             {
-                Location = new Point(305, 18),
+                Location = new Point(305, 16),
                 Size = new Size(110, 34),
                 Font = new Font("Segoe UI", 9f, FontStyle.Bold),
                 BackColor = Color.White,
