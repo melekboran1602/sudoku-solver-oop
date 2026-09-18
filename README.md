@@ -6,7 +6,7 @@ A modern, clean, and localized Sudoku solver desktop application built with **C#
 
 ## 📸 Preview
 
-![Sudoku Solver Interface](screenshots/app_preview.png)
+![Sudoku Solver Interface](preview.png)
 
 ---
 
@@ -53,11 +53,15 @@ sudoku-solver-oop/
 ├── Models/
 │   └── SudokuGrid.cs           # 9x9 matrix encapsulation, state cloning & indexing
 ├── UI/
-│   ├── MainForm.cs             # Windows Forms GUI, custom grid painting & event handlers
-│   └── Localization.cs         # Key-value multi-language dictionary service
+│   ├── ConsoleRenderer.cs      # UTF-8 terminal board rendering with 3x3 block borders
+│   ├── Localization.cs         # Key-value multi-language dictionary service
+│   └── MainForm.cs             # Windows Forms GUI, custom grid painting & event handlers
+├── .gitignore                  # Build artifact and temporary file exclusion rules
+├── LICENSE                     # MIT License
+├── README.md                   # Project documentation & architecture overview
+├── preview.png                 # Application preview screenshot
 ├── Program.cs                  # Application bootstrap and STAThread entry point
-├── SudokuEngine.csproj         # .NET 8 WinForms project configuration
-└── README.md                   # Project documentation & architecture overview
+└── sudoku-solver-oop.csproj    # .NET 8 WinForms project configuration
 ```
 
 ## 🎯 Project Goal
