@@ -11,110 +11,142 @@ namespace SudokuEngine.UI
         private TextBox[,] cells = new TextBox[9, 9];
         private Panel boardPanel;
         private Button btnSolve;
-        private Button btnClear;
-        private ComboBox cmbLanguage;
-        private Label lblLanguage;
+        private Button btnClearAll;
+        private Button btnClearCell;
+        private Button btnLangMenu;
+        private ContextMenuStrip langMenu;
+
+        private TextBox? activeCell = null;
+
+        // Renk Paleti
+        private readonly Color bgForm = Color.FromArgb(248, 250, 252);
+        private readonly Color cellDefaultBg = Color.White;
+        private readonly Color cellFocusBg = Color.FromArgb(224, 242, 254);     // Seçilince açık gök mavisi
+        private readonly Color cellErrorBg = Color.FromArgb(254, 202, 202);     // Kural hatasında pastel kırmızı
+        private readonly Color thinLineColor = Color.FromArgb(191, 219, 254);    // Normal satır/sütun arası pastel mavi
+        private readonly Color blockLineColor = Color.FromArgb(30, 41, 59);      // 3x3 blokları ayıran mat siyah
+        private readonly Color textColorInitial = Color.FromArgb(15, 23, 42);    // Senin yazdığın sayılar (koyu siyah)
+        private readonly Color textColorSolved = Color.FromArgb(2, 132, 199);    // Çözülen sayılar (belirgin mavi)
 
         public MainForm()
         {
-            // Form ayarları
-            this.Size = new Size(490, 640);
+            this.Size = new Size(480, 650);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.BackColor = Color.FromArgb(245, 247, 250); // Göz yormayan yumuşak açık gri zemin
+            this.BackColor = bgForm;
 
-            // Varsayılan dil
-            Localization.CurrentLanguage = Language.Turkish;
-
-            InitializeLanguageSelector();
-            InitializeGrid();
-            InitializeButtons();
+            InitializeLanguageButton();
+            InitializeBoard();
+            InitializeActionButtons();
 
             ApplyLocalization();
         }
 
-        private void InitializeLanguageSelector()
+        private void InitializeLanguageButton()
         {
-            // Genişliği 110 yaparak "Language:" yazısının kesilmesini önledik
-            lblLanguage = new Label
+            langMenu = new ContextMenuStrip();
+            langMenu.Items.Add("🇹🇷 Türkçe", null, (s, e) => SwitchLanguage(Language.Turkish));
+            langMenu.Items.Add("🇬🇧 English", null, (s, e) => SwitchLanguage(Language.English));
+            langMenu.Items.Add("🇩🇪 Deutsch", null, (s, e) => SwitchLanguage(Language.German));
+
+            btnLangMenu = new Button
             {
-                Location = new Point(30, 20),
-                Size = new Size(110, 28),
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(50, 60, 70),
-                TextAlign = ContentAlignment.MiddleLeft
+                Text = "🌐 Dil / Language",
+                Location = new Point(35, 18),
+                Size = new Size(160, 34),
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(51, 65, 85),
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                TextAlign = ContentAlignment.MiddleCenter
             };
+            btnLangMenu.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+            btnLangMenu.Click += (s, e) => langMenu.Show(btnLangMenu, new Point(0, btnLangMenu.Height));
 
-            cmbLanguage = new ComboBox
-            {
-                Location = new Point(145, 20),
-                Size = new Size(130, 28),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("Segoe UI", 9.5f),
-                BackColor = Color.White
-            };
-
-            cmbLanguage.Items.Add("Türkçe");
-            cmbLanguage.Items.Add("English");
-            cmbLanguage.Items.Add("Deutsch");
-            cmbLanguage.SelectedIndex = 0;
-
-            cmbLanguage.SelectedIndexChanged += (s, e) =>
-            {
-                Localization.CurrentLanguage = cmbLanguage.SelectedIndex switch
-                {
-                    1 => Language.English,
-                    2 => Language.German,
-                    _ => Language.Turkish
-                };
-                ApplyLocalization();
-            };
-
-            this.Controls.Add(lblLanguage);
-            this.Controls.Add(cmbLanguage);
+            this.Controls.Add(btnLangMenu);
         }
 
-        private void InitializeGrid()
+        private void SwitchLanguage(Language lang)
+        {
+            Localization.CurrentLanguage = lang;
+            ApplyLocalization();
+        }
+
+        private void InitializeBoard()
         {
             int cellSize = 42;
-            int thinGap = 1;   // Normal hücreler arası ince çizgi
-            int thickGap = 4;  // 3x3 bloklar arası kalın çizgi
-            int padding = 4;   // Tahtanın dış çerçeve kalınlığı
+            int totalSize = cellSize * 9;
 
-            // Tahtanın toplam genişlik ve yüksekliğini hesapla
-            int boardSize = (padding * 2) + (cellSize * 9) + (thinGap * 6) + (thickGap * 2);
-
-            // Arka plandaki ana Sudoku tahta kutusu (Çizgiler bu rengin aradan görünmesiyle oluşur)
             boardPanel = new Panel
             {
-                Location = new Point(30, 65),
-                Size = new Size(boardSize, boardSize),
-                BackColor = Color.FromArgb(33, 37, 41) // Koyu grafit/siyah çerçeve çizgileri
+                Location = new Point(35, 65),
+                Size = new Size(totalSize + 1, totalSize + 1),
+                BackColor = cellDefaultBg
+            };
+
+            // Normal aralıklar pastel mavi, 3x3 ayrımı ve dış çerçeve siyah
+            boardPanel.Paint += (s, e) =>
+            {
+                var g = e.Graphics;
+                using var thinBluePen = new Pen(thinLineColor, 1);
+                using var thickBlackPen = new Pen(blockLineColor, 2);
+
+                for (int i = 0; i <= 9; i++)
+                {
+                    int pos = i * cellSize;
+                    bool isBlockBoundary = (i % 3 == 0);
+                    var pen = isBlockBoundary ? thickBlackPen : thinBluePen;
+
+                    g.DrawLine(pen, pos, 0, pos, totalSize);
+                    g.DrawLine(pen, 0, pos, totalSize, pos);
+                }
             };
 
             for (int r = 0; r < 9; r++)
             {
                 for (int c = 0; c < 9; c++)
                 {
-                    // 3x3 bloklara göre piksel konumunu hesapla
-                    int posX = padding + (c * cellSize) + ((c - (c / 3)) * thinGap) + ((c / 3) * thickGap);
-                    int posY = padding + (r * cellSize) + ((r - (r / 3)) * thinGap) + ((r / 3) * thickGap);
-
                     var tb = new TextBox
                     {
-                        Width = cellSize,
-                        Height = cellSize,
-                        Location = new Point(posX, posY),
-                        Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                        Width = cellSize - 4,
+                        Height = cellSize - 4,
+                        Location = new Point(c * cellSize + 2, r * cellSize + 8),
+                        Font = new Font("Segoe UI", 15, FontStyle.Bold),
                         TextAlign = HorizontalAlignment.Center,
                         MaxLength = 1,
-                        BorderStyle = BorderStyle.None, // Keskin çerçeveyi kaldırıp yumuşattık
-                        BackColor = Color.FromArgb(254, 254, 254), // Gözü dinlendiren kırık beyaz
-                        ForeColor = Color.FromArgb(30, 30, 30)
+                        BorderStyle = BorderStyle.None,
+                        BackColor = cellDefaultBg,
+                        ForeColor = textColorInitial,
+                        Tag = new Point(r, c)
                     };
 
-                    // Sadece 1-9 arası sayılara izin ver
+                    tb.Enter += (s, e) =>
+                    {
+                        activeCell = tb;
+                        tb.BackColor = cellFocusBg;
+                    };
+
+                    tb.Leave += (s, e) =>
+                    {
+                        if (tb.BackColor != cellErrorBg)
+                        {
+                            tb.BackColor = cellDefaultBg;
+                        }
+                    };
+
+                    tb.KeyDown += (s, e) =>
+                    {
+                        if (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete)
+                        {
+                            tb.Text = "";
+                            tb.ForeColor = textColorInitial;
+                            tb.BackColor = cellFocusBg;
+                            e.Handled = true;
+                        }
+                    };
+
                     tb.KeyPress += (s, e) =>
                     {
                         if (!char.IsControl(e.KeyChar) && (e.KeyChar < '1' || e.KeyChar > '9'))
@@ -131,14 +163,14 @@ namespace SudokuEngine.UI
             this.Controls.Add(boardPanel);
         }
 
-        private void InitializeButtons()
+        private void InitializeActionButtons()
         {
             btnSolve = new Button
             {
-                Location = new Point(30, 520),
-                Size = new Size(195, 48),
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                BackColor = Color.FromArgb(39, 174, 96), // Şık zümrüt yeşili
+                Location = new Point(35, 480),
+                Size = new Size(185, 45),
+                Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
+                BackColor = Color.FromArgb(2, 132, 199), // Çözülen sayılarla uyumlu canlı mavi buton
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
@@ -146,60 +178,104 @@ namespace SudokuEngine.UI
             btnSolve.FlatAppearance.BorderSize = 0;
             btnSolve.Click += BtnSolve_Click;
 
-            btnClear = new Button
+            btnClearCell = new Button
             {
-                Location = new Point(245, 520),
-                Size = new Size(195, 48),
-                Font = new Font("Segoe UI", 11, FontStyle.Regular),
-                BackColor = Color.FromArgb(231, 76, 60), // Şık soft kırmızı
-                ForeColor = Color.White,
+                Location = new Point(230, 480),
+                Size = new Size(185, 45),
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                BackColor = Color.FromArgb(241, 245, 249),
+                ForeColor = Color.FromArgb(51, 65, 85),
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
             };
-            btnClear.FlatAppearance.BorderSize = 0;
-            btnClear.Click += (s, e) =>
+            btnClearCell.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+            btnClearCell.Click += (s, e) =>
+            {
+                if (activeCell != null)
+                {
+                    activeCell.Text = "";
+                    activeCell.ForeColor = textColorInitial;
+                    activeCell.BackColor = cellFocusBg;
+                }
+            };
+
+            btnClearAll = new Button
+            {
+                Location = new Point(35, 535),
+                Size = new Size(380, 40),
+                Font = new Font("Segoe UI", 10f, FontStyle.Regular),
+                BackColor = Color.FromArgb(248, 250, 252),
+                ForeColor = Color.FromArgb(100, 116, 139),
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            btnClearAll.FlatAppearance.BorderColor = Color.FromArgb(226, 232, 240);
+            btnClearAll.Click += (s, e) =>
             {
                 for (int r = 0; r < 9; r++)
                 {
                     for (int c = 0; c < 9; c++)
                     {
                         cells[r, c].Text = "";
-                        cells[r, c].ForeColor = Color.FromArgb(30, 30, 30);
+                        cells[r, c].ForeColor = textColorInitial;
+                        cells[r, c].BackColor = cellDefaultBg;
                     }
                 }
             };
 
             this.Controls.Add(btnSolve);
-            this.Controls.Add(btnClear);
+            this.Controls.Add(btnClearCell);
+            this.Controls.Add(btnClearAll);
         }
 
         private void ApplyLocalization()
         {
             this.Text = Localization.Get("AppTitle");
-            lblLanguage.Text = Localization.Get("LanguageLabel");
+            btnLangMenu.Text = "🌐 " + Localization.Get("LanguageLabel").Replace(":", "");
             btnSolve.Text = Localization.Get("SolveButton");
-            btnClear.Text = Localization.Get("ClearButton");
+            btnClearCell.Text = Localization.Get("DeleteCell");
+            btnClearAll.Text = Localization.Get("ClearButton");
         }
 
         private void BtnSolve_Click(object? sender, EventArgs e)
         {
-            var grid = new SudokuGrid();
+            for (int r = 0; r < 9; r++)
+                for (int c = 0; c < 9; c++)
+                    cells[r, c].BackColor = cellDefaultBg;
 
+            var grid = new SudokuGrid();
+            bool hasFormatError = false;
+
+            // Başlangıç değerlerini doğrula
             for (int r = 0; r < 9; r++)
             {
                 for (int c = 0; c < 9; c++)
                 {
                     if (int.TryParse(cells[r, c].Text, out int val) && val >= 1 && val <= 9)
                     {
-                        grid.SetValue(r, c, val);
-                        cells[r, c].ForeColor = Color.FromArgb(30, 30, 30); // Kullanıcının girdiği sayılar koyu gri/siyah
+                        if (!SudokuValidator.IsValidPlacement(grid, r, c, val))
+                        {
+                            cells[r, c].BackColor = cellErrorBg;
+                            hasFormatError = true;
+                        }
+                        else
+                        {
+                            grid.SetValue(r, c, val);
+                            cells[r, c].ForeColor = textColorInitial;
+                        }
                     }
                     else
                     {
                         grid.SetValue(r, c, 0);
-                        cells[r, c].ForeColor = Color.FromArgb(41, 128, 185); // Algoritmanın bulduğu sayılar güzel bir mavi
+                        cells[r, c].ForeColor = textColorSolved;
                     }
                 }
+            }
+
+            if (hasFormatError)
+            {
+                MessageBox.Show(Localization.Get("InvalidBoard"), Localization.Get("ResultTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
             bool solved = BacktrackingSolver.Solve(grid);
@@ -216,9 +292,7 @@ namespace SudokuEngine.UI
             }
             else
             {
-                string msg = Localization.Get("NoSolution");
-                string title = Localization.Get("ResultTitle");
-                MessageBox.Show(msg, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Localization.Get("NoSolution"), Localization.Get("ResultTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
     }
