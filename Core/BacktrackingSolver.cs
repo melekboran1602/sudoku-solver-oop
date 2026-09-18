@@ -32,7 +32,7 @@ namespace SudokuEngine.Core
               if ( _validator.IsValidPlacement(grid, row, col, candidate))
               {
                 grid.SetValue(row, col, candidate);
-                if (SolveRecursively(Grid) 
+                if (SolveRecursively(Grid)) 
                 {
                   return true;
                 }
