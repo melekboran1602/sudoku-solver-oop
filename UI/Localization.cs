@@ -53,7 +53,7 @@ namespace SudokuEngine.UI
     /// <summary>
     /// Retrieves localized text by key based on the current language.
     /// </summary>
-    public static string GetValue(string key) 
+    public static string Get(string key) 
     {
       if (Translations.TryGetValue(CurrentLanguage, out var langDict) && langDict.TryGetValue(key, out var text))
       {
