@@ -10,6 +10,7 @@ namespace SudokuEngine.UI
     {
         private TextBox[,] cells = new TextBox[9, 9];
         private Panel boardPanel;
+        private Label lblInfo;
         private Button btnSolve;
         private Button btnClearAll;
         private Button btnClearCell;
@@ -21,12 +22,12 @@ namespace SudokuEngine.UI
         // Renk Paleti
         private readonly Color bgForm = Color.FromArgb(248, 250, 252);
         private readonly Color cellDefaultBg = Color.White;
-        private readonly Color cellFocusBg = Color.FromArgb(224, 242, 254);     // Seçilince açık gök mavisi
-        private readonly Color cellErrorBg = Color.FromArgb(254, 202, 202);     // Kural hatasında pastel kırmızı
-        private readonly Color thinLineColor = Color.FromArgb(191, 219, 254);    // Normal satır/sütun arası pastel mavi
-        private readonly Color blockLineColor = Color.FromArgb(30, 41, 59);      // 3x3 blokları ayıran mat siyah
-        private readonly Color textColorInitial = Color.FromArgb(15, 23, 42);    // Senin yazdığın sayılar (koyu siyah)
-        private readonly Color textColorSolved = Color.FromArgb(2, 132, 199);    // Çözülen sayılar (belirgin mavi)
+        private readonly Color cellFocusBg = Color.FromArgb(224, 242, 254);     // Seçilince tam dolgu açık mavi
+        private readonly Color cellErrorBg = Color.FromArgb(254, 202, 202);     // Kural ihlalinde pastel kırmızı
+        private readonly Color thinLineColor = Color.FromArgb(191, 219, 254);    // Hücreler arası pastel mavi (1px)
+        private readonly Color blockLineColor = Color.FromArgb(30, 41, 59);      // 3x3 ve dış çerçeve mat siyah (2px)
+        private readonly Color textColorInitial = Color.FromArgb(15, 23, 42);    // Kullanıcı sayıları (siyah)
+        private readonly Color textColorSolved = Color.FromArgb(2, 132, 199);    // Çözülen sayılar (mavi)
 
         public MainForm()
         {
@@ -36,15 +37,29 @@ namespace SudokuEngine.UI
             this.MaximizeBox = false;
             this.BackColor = bgForm;
 
-            InitializeLanguageButton();
+            InitializeTopBar();
             InitializeBoard();
             InitializeActionButtons();
 
             ApplyLocalization();
+
+            // İlk açılışta rastgele bir hücre seçili/mavi başlamasın
+            this.Shown += (s, e) => btnSolve.Focus();
         }
 
-        private void InitializeLanguageButton()
+        private void InitializeTopBar()
         {
+            // Sol Taraf: "Lütfen sayıları giriniz" mesajı
+            lblInfo = new Label
+            {
+                Location = new Point(35, 18),
+                Size = new Size(265, 34),
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(71, 85, 105),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            // Sağ Taraf: Dünya simgeli dil seçimi
             langMenu = new ContextMenuStrip();
             langMenu.Items.Add("🇹🇷 Türkçe", null, (s, e) => SwitchLanguage(Language.Turkish));
             langMenu.Items.Add("🇬🇧 English", null, (s, e) => SwitchLanguage(Language.English));
@@ -52,10 +67,9 @@ namespace SudokuEngine.UI
 
             btnLangMenu = new Button
             {
-                Text = "🌐 Dil / Language",
-                Location = new Point(35, 18),
-                Size = new Size(160, 34),
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                Location = new Point(305, 18),
+                Size = new Size(110, 34),
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
                 BackColor = Color.White,
                 ForeColor = Color.FromArgb(51, 65, 85),
                 FlatStyle = FlatStyle.Flat,
@@ -65,6 +79,7 @@ namespace SudokuEngine.UI
             btnLangMenu.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
             btnLangMenu.Click += (s, e) => langMenu.Show(btnLangMenu, new Point(0, btnLangMenu.Height));
 
+            this.Controls.Add(lblInfo);
             this.Controls.Add(btnLangMenu);
         }
 
@@ -82,26 +97,8 @@ namespace SudokuEngine.UI
             boardPanel = new Panel
             {
                 Location = new Point(35, 65),
-                Size = new Size(totalSize + 1, totalSize + 1),
+                Size = new Size(totalSize + 2, totalSize + 2),
                 BackColor = cellDefaultBg
-            };
-
-            // Normal aralıklar pastel mavi, 3x3 ayrımı ve dış çerçeve siyah
-            boardPanel.Paint += (s, e) =>
-            {
-                var g = e.Graphics;
-                using var thinBluePen = new Pen(thinLineColor, 1);
-                using var thickBlackPen = new Pen(blockLineColor, 2);
-
-                for (int i = 0; i <= 9; i++)
-                {
-                    int pos = i * cellSize;
-                    bool isBlockBoundary = (i % 3 == 0);
-                    var pen = isBlockBoundary ? thickBlackPen : thinBluePen;
-
-                    g.DrawLine(pen, pos, 0, pos, totalSize);
-                    g.DrawLine(pen, 0, pos, totalSize, pos);
-                }
             };
 
             for (int r = 0; r < 9; r++)
@@ -110,9 +107,10 @@ namespace SudokuEngine.UI
                 {
                     var tb = new TextBox
                     {
-                        Width = cellSize - 4,
-                        Height = cellSize - 4,
-                        Location = new Point(c * cellSize + 2, r * cellSize + 8),
+                        Location = new Point(c * cellSize + 2, r * cellSize + 2),
+                        Width = cellSize - 3,
+                        Height = cellSize - 3,
+                        Multiline = true,
                         Font = new Font("Segoe UI", 15, FontStyle.Bold),
                         TextAlign = HorizontalAlignment.Center,
                         MaxLength = 1,
@@ -160,6 +158,36 @@ namespace SudokuEngine.UI
                 }
             }
 
+            // Çizgilerin üst üste binip siyah leke yapmasını engelleyen çizim
+            boardPanel.Paint += (s, e) =>
+            {
+                var g = e.Graphics;
+                using var thinPen = new Pen(thinLineColor, 1);
+                using var thickPen = new Pen(blockLineColor, 2);
+
+                // 1. İnce pastel mavi çizgiler
+                for (int i = 1; i < 9; i++)
+                {
+                    if (i % 3 != 0)
+                    {
+                        int pos = i * cellSize;
+                        g.DrawLine(thinPen, pos, 0, pos, totalSize);
+                        g.DrawLine(thinPen, 0, pos, totalSize, pos);
+                    }
+                }
+
+                // 2. 3x3 blokları ayıran mat siyah çizgiler
+                for (int i = 3; i < 9; i += 3)
+                {
+                    int pos = i * cellSize;
+                    g.DrawLine(thickPen, pos, 0, pos, totalSize);
+                    g.DrawLine(thickPen, 0, pos, totalSize, pos);
+                }
+
+                // 3. Dış çerçeve
+                g.DrawRectangle(thickPen, 1, 1, totalSize, totalSize);
+            };
+
             this.Controls.Add(boardPanel);
         }
 
@@ -170,7 +198,7 @@ namespace SudokuEngine.UI
                 Location = new Point(35, 480),
                 Size = new Size(185, 45),
                 Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
-                BackColor = Color.FromArgb(2, 132, 199), // Çözülen sayılarla uyumlu canlı mavi buton
+                BackColor = Color.FromArgb(2, 132, 199),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
@@ -231,7 +259,13 @@ namespace SudokuEngine.UI
         private void ApplyLocalization()
         {
             this.Text = Localization.Get("AppTitle");
-            btnLangMenu.Text = "🌐 " + Localization.Get("LanguageLabel").Replace(":", "");
+            lblInfo.Text = Localization.Get("InputInfo");
+            btnLangMenu.Text = "🌐 " + (Localization.CurrentLanguage switch
+            {
+                Language.Turkish => "Dil",
+                Language.German => "Sprache",
+                _ => "Language"
+            });
             btnSolve.Text = Localization.Get("SolveButton");
             btnClearCell.Text = Localization.Get("DeleteCell");
             btnClearAll.Text = Localization.Get("ClearButton");
@@ -246,7 +280,6 @@ namespace SudokuEngine.UI
             var grid = new SudokuGrid();
             bool hasFormatError = false;
 
-            // Başlangıç değerlerini doğrula
             for (int r = 0; r < 9; r++)
             {
                 for (int c = 0; c < 9; c++)
